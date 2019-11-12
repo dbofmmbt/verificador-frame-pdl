@@ -20,14 +20,16 @@ verificaRec :: Modelo -> PDL -> Estado -> Bool
 verificaRec m p e
   | p == Vazia = True
   | ehFolha p = verticeTemPrograma v (simbolo p)
-  | simbolo (esquerdo p) == "*" = not $ null $ filter (\valor -> valor) (map (verificaRec m (direito p)) iteracoes)
+  | sequencia_com_iteracao = not $ null $ filter (\valor -> valor) (map (verificaRec m (direito p)) estadosIterSeq)
   | simbolo p == ";" = verificaRec m (esquerdo p) e && verificaRec m (direito p) (proximoEstado v p)
   | simbolo p == "U" = verificaRec m (esquerdo p) e || verificaRec m (direito p ) e
-  -- | simbolo p == "*" = 
+  | simbolo p == "*" = not $ null $ estadosIterPura
   | otherwise = error "Não implementado ainda"
   where
     v = m !! e
-    iteracoes = takeWhile (/=(0-1)) (map (executaIteracao m (esquerdo $ esquerdo p) e) [0..])
+    estadosIterSeq = estadosDeIteracao m (esquerdo $ esquerdo p) e
+    estadosIterPura = estadosDeIteracao m (esquerdo p) e
+    sequencia_com_iteracao = simbolo p == ";" && simbolo (esquerdo p) == "*"
 
 proximoEstado :: Vertice -> PDL -> Estado
 proximoEstado v p
@@ -42,6 +44,9 @@ executaIteracao m p e i
   | verificaRec m p e = executaIteracao m p (proximoEstado v p) (i-1)
   | otherwise = -1
   where v = m !! e
+
+estadosDeIteracao :: Modelo -> PDL -> Estado -> [Estado]
+estadosDeIteracao m p e = takeWhile (/=(0-1)) (map (executaIteracao m p e) [0..])
 
 -- testes (só copiar e colar no ghci):
 
@@ -70,3 +75,6 @@ executaIteracao m p e i
 
 -- alpha*;beta
 -- verificaFramePDL [[(1, "alpha")], [(2, "beta")], []] (criaArvore "Arvore \";\" (Arvore \"*\" (Arvore \"alpha\" Vazia Vazia) Vazia) (Arvore \"beta\" Vazia Vazia)")
+
+-- alpha*
+-- verificaFramePDL [[(1, "alpha")], [(2, "beta")], []] (criaArvore "Arvore \"*\" (Arvore \"alpha\" Vazia Vazia) Vazia")
