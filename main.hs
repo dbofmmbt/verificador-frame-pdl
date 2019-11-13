@@ -1,11 +1,7 @@
 import System.IO
 import Data.List.Split
 import Arvore
+import Verificador
 
 main = do
-  putStrLn "Lendo arquivo de entrada..."
-  arq <- openFile "entrada.txt" ReadMode
-  input <- hGetContents arq
-  let linhas = lines input
-  print $ length linhas
-  hClose arq
+  putStrLn $ verificaFramePDL [[(1, "alpha")], [(2, "beta")], []] (criaArvore "Arvore \"*\" (Arvore \"alpha\" Vazia Vazia) Vazia")

@@ -1,4 +1,4 @@
-module Verficador
+module Verificador
 (
   verificaFramePDL
 ) where
